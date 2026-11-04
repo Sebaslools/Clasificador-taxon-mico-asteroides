@@ -218,7 +218,7 @@ with tab2:
       if len(datostop)>0: #Para graficar nuestros espectros en la misma grafica
           clases_top = Counter(item['clase'] for item in datostop)
           clases_unicas = [clase for clase, freq in clases_top.most_common()]
-          clases_seleccionadas = st.multiselect("Clases a mostrar:", options=clases_unicas, default=clases_unicas, key="filtro clase graficas" )
+          clases_seleccionadas = st.multiselect("Clases a mostrar:", options=clases_unicas, default=clases_unicas, key=f"Multi clases {item}" )
           datos_filtrados = [item for item in datostop if item['clase'] in clases_seleccionadas]
           if len(datos_filtrados)>0:
            cmap = plt.get_cmap('tab10')
