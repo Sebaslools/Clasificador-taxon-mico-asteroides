@@ -248,8 +248,6 @@ with tab2:
           else:
            st.warning("No hay datos validos para graficar")
            
-with tab3:
-)
     
     
     
