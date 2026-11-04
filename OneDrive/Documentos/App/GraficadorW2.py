@@ -9,12 +9,13 @@ import numpy as np #para las funciones
 import matplotlib.pyplot as plt #Para las graficas
 import pandas as pd #Para leer el archivo csv de SMASS2-E
 import streamlit as st
-import joblib
 import requests
 import io
 from scipy.interpolate import interp1d #Para interpolar nuestros datos
 from collections import Counter
-
+from sklearn.decomposition import PCA
+from sklearn.neighbors import NeighborhoodComponentsAnalysis
+from sklearn.neighbors import KNeighborsClassifier
 
 eje_comun=np.linspace(0.44, 0.92, 49) #Para establecer el rango, incluyendo el limite superior y definiendo el numero de puntos 
 
@@ -25,31 +26,21 @@ def cargar_smassll():
     return df
 
 @st.cache_resource
-def cargar_PCA():
-    url_pca = "https://github.com/enriquebuendia/taxonomia_asteroides/raw/refs/heads/main/data/PCA"
-    pca_response = requests.get(url_pca)
-    pca = joblib.load(io.BytesIO((pca_response.content)))
-    return pca
-
-@st.cache_resource
-def cargar_NCA():
-    url_nca = "https://github.com/enriquebuendia/taxonomia_asteroides/raw/refs/heads/main/data/NCA"
-    nca_response = requests.get(url_nca)
-    nca = joblib.load(io.BytesIO((nca_response.content)))
-    return nca
-
-@st.cache_resource
-def cargar_KNN():
-    url_KNN = "https://github.com/enriquebuendia/taxonomia_asteroides/raw/refs/heads/main/data/knnoriginal"
-    KNN_response = requests.get(url_KNN)
-    KNN = joblib.load(io.BytesIO((KNN_response.content)))
-    url_KNNPCA = "https://github.com/enriquebuendia/taxonomia_asteroides/raw/refs/heads/main/data/knnPCA"
-    KNNPCA_response = requests.get(url_KNNPCA)
-    KNNPCA = joblib.load(io.BytesIO((KNNPCA_response.content)))
-    url_KNNNCA = "https://github.com/enriquebuendia/taxonomia_asteroides/raw/refs/heads/main/data/knnNCA"
-    KNNNCA_response = requests.get(url_KNNNCA)
-    KNNNCA = joblib.load((io.BytesIO(KNNNCA_response.content)))
-    return KNN, KNNPCA, KNNNCA
+def cargar_entrenar_modelos():
+    df = pd.read_csv('tabla_smass.csv')
+    X = df_smass.drop(columns=['tax']).values
+    Y = df_smass['tax'].values
+    pca = PCA(n_components = 0.95)
+    X_pca = pca.fit_transform(X)
+    knnpca = KNeighborsClassifier(n_neighbors=11, metric='euclidean')
+    knnpca.fit(X_pca, Y)
+    nca = NeighborhoodComponentsAnalysis(n_components=5, init='random', random_state=42)
+    X_nca = nca.fit_transform(X, Y) 
+    knnnca = KNeighborsClassifier(n_neighbors=11, metric='euclidean')
+    knnnca.fit(X_nca, Y)
+    knn = KNeighborsClassifier(n_neighbors=11, metric='euclidean')
+    knn.fit(X, Y)
+    return pca, knnpca, nca, knnnca, knn
 
 def leer_espectros(file, angstrom=False): #Para leer los datos del espectro
     data=np.loadtxt(file) #Para cargar el archivo txt
@@ -139,7 +130,7 @@ if right_column.checkbox("Seleccionar manualmente unidades de cada archivo"):
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Mis datos graficados", "Clasificación taxonomica (Euclidiana)", "PCA", "NCA", "KNN"])
 
-knn, knnpca, knnnca = cargar_KNN()
+pca, knnpca, nca, knnnca, knn = cargar_entrenar_modelos()
 
 with tab1:        
   if len(espectros)>0: #Para graficar nuestros espectros en la misma grafica
@@ -251,7 +242,6 @@ with tab2:
            st.warning("No hay datos validos para graficar")
            
 with tab3:
-    pca = cargar_PCA()
     for item in espectros:
         mis_datos = item["interpolado"]
         mis_datos2d = np.array(mis_datos).reshape(1, -1)
@@ -268,7 +258,6 @@ with tab3:
             if porcentaje > 0.0:
                 st.write(f'**Clase {clase}**: {porcentaje:.2f}%')
 with tab4:
-    nca = cargar_NCA()
     for item in espectros:
         mis_datos = item["interpolado"]
         mis_datos2d = np.array(mis_datos).reshape(1,-1)
