@@ -139,6 +139,8 @@ if right_column.checkbox("Seleccionar manualmente unidades de cada archivo"):
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Mis datos graficados", "Clasificación taxonomica (Euclidiana)", "PCA", "NCA", "KNN"])
 
+knn, knnpca, knnnca = cargar_KNN()
+
 with tab1:        
   if len(espectros)>0: #Para graficar nuestros espectros en la misma grafica
     fig, ax = plt.subplots()
