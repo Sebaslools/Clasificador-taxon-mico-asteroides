@@ -248,6 +248,55 @@ with tab2:
           else:
            st.warning("No hay datos validos para graficar")
            
-    
+    with tab3:
+    pca = cargar_PCA()
+    for item in espectros:
+        mis_datos = item["interpolado"]
+        mis_datos2d = np.array(mis_datos).reshape(1, -1)
+        mis_datosPCA = pca.transform(mis_datos2d)
+        prediccionPCA = knnpca.predict_proba(mis_datosPCA)
+        indice_clase = np.argmax(prediccionPCA)
+        clase_predicha = knnpca.classes_[indice_clase]
+        st.text(f"Para {item['Nombre']} la clase más probable es {clase_predicha} de acuerdo con el modelo KNN-PCA")
+        clases = knnpca.classes_
+        probabilidades = knnpca.predict_proba(mis_datosPCA)[0]
+        clases_y_probas = sorted(zip(clases, probabilidades), key=lambda x: x[1], reverse = True)
+        for clase, proba in clases_y_probas:
+            porcentaje = proba*100
+            if porcentaje > 0.0:
+                st.write(f'**Clase {clase}**: {porcentaje:.2f}%')
+with tab4:
+    nca = cargar_NCA()
+    for item in espectros:
+        mis_datos = item["interpolado"]
+        mis_datos2d = np.array(mis_datos).reshape(1,-1)
+        mis_datosNCA = nca.transform(mis_datos2d)
+        prediccionNCA = knnnca.predict_proba(mis_datosNCA)
+        indice_clase = np.argmax(prediccionNCA)
+        clase_predicha = knnnca.classes_[indice_clase]
+        st.text(f"Para {item['Nombre']} la clase más probable es {clase_predicha} de acuerdo con el modelo KNN-NCA")
+        clases = knnnca.classes_
+        probabilidades = knnnca.predict_proba(mis_datosNCA)[0]
+        clases_y_probas = sorted(zip(clases, probabilidades), key=lambda x: x[1], reverse = True)
+        for clase, proba in clases_y_probas:
+            porcentaje = proba*100
+            if porcentaje > 0.0:
+                st.write(f'**Clase {clase}**: {porcentaje:.2f}%')
+        
+with tab5:
+    for item in espectros:
+        mis_datos = item["interpolado"]
+        mis_datos2d = np.array(mis_datos).reshape(1,-1)
+        prediccionKNN = knn.predict_proba(mis_datos2d)
+        indice_clase = np.argmax(prediccionKNN)
+        clase_predicha = knn.classes_[indice_clase]
+        st.text(f"Para {item['Nombre']} la clase más probable es {clase_predicha} de acuerdo al modelo KNN")
+        clases = knn.classes_
+        probabilidades = knn.predict_proba(mis_datos2d)[0]
+        clases_y_probas = sorted(zip(clases, probabilidades), key=lambda x: x[1], reverse = True)
+        for clase, proba in clases_y_probas:
+            porcentaje = proba*100
+            if porcentaje > 0.0:
+                st.write(f'**Clase {clase}**: {porcentaje:.2f}%')
     
     
