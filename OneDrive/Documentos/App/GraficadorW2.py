@@ -248,7 +248,7 @@ with tab2:
           else:
            st.warning("No hay datos validos para graficar")
            
-    with tab3:
+with tab3:
     pca = cargar_PCA()
     for item in espectros:
         mis_datos = item["interpolado"]
