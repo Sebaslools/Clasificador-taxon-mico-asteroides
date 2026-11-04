@@ -27,7 +27,8 @@ def cargar_smassll():
 
 @st.cache_resource
 def cargar_entrenar_modelos():
-    df = pd.read_csv('tabla_smass.csv')
+    url_datos = "https://raw.githubusercontent.com/enriquebuendia/taxonomia_asteroides/refs/heads/main/data/tabla_smass.csv"
+    df = pd.read_csv(url_datos)
     X = df_smass.drop(columns=['tax']).values
     Y = df_smass['tax'].values
     pca = PCA(n_components = 0.95)
