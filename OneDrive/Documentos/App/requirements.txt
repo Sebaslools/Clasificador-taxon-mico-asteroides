@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+matplotlib.pyplot
+requests
+io
+collections
+scipy.interpolate
