@@ -73,9 +73,10 @@ ks = []
 catalogo = []
 
 
-V_angstroms = ['Si', 'No']
+V_angstroms = ['-','Si', 'No']
 m = list(range(1, 11))
 km = np.arange(1, 101,1)
+unidadesa = ['-','Todos los archivos en angstrom', 'Todos los archivos en micras', 'Seleccionar manualmente unidades de cada archivo']
 
 with st.spinner("Conectando con base de datos y cargando SMASSII..."):
     try: 
@@ -93,41 +94,40 @@ with st.sidebar:
    k = st.slider(f'k{i+1}', min_value= 10)
    ks.append(k)
 
-left_column, middle_column, right_column = st.columns(3)
 
-if left_column.checkbox("Todos los archivos en angstrom"):
+unidades_archivos = st.selectbox("Unidades de los archivos", unidadesa)
+if unidades_archivos == 'Todos los archivos en angstrom':
     es_angstrom = True
     for file in espectro:
         try:
             l, r = leer_espectros(file, es_angstrom)
             interp = interpolación(l, r)
-            espectros.append({"Nombre": file.name, "onda": l, "reflectancia": r, "interpolado": interp} )
+            espectros.append({"Nombre": file.name, "onda": l, "reflectancia": r, "interpolado": interp})
         except ValueError as e:
-            st.write("Error en archivo")
-    
-if middle_column.checkbox("Todos los archivos en micras"):
+            st.warning("Error en archivo. Revise las unidades.")
+            
+if unidades_archivos == 'Todos los archivos en micras':
     es_angstrom = False
     for file in espectro:
         try:
             l, r = leer_espectros(file, es_angstrom)
             interp = interpolación(l, r)
-            espectros.append({"Nombre": file.name, "onda": l, "reflectancia": r, "interpolado": interp} )
+            espectros.append({"Nombre": file.name, "onda": l, "reflectancia": r, "interpolado": interp})
         except ValueError as e:
-            st.write("Error en archivo")
-
-if right_column.checkbox("Seleccionar manualmente unidades de cada archivo"):
- if espectro:
-    st.write(f"Se clasificaran **{len(espectro)}** archivo(s)")
-    for file in espectro:
-        unidades = st.selectbox(f"'{file.name}' esta en angstroms?", V_angstroms)
-        es_angstrom = True if unidades == 'Si' else False
-        
-        try:
-            l, r = leer_espectros(file, es_angstrom)
-            interp = interpolación(l, r)
-            espectros.append({"Nombre": file.name, "onda": l, "reflectancia": r, "interpolado": interp} )
-        except ValueError as e:
-            st.write("Error en archivo")
+            st.warning("Error en archivo. Revise las unidades.")
+            
+if unidades_archivos == 'Seleccionar manualmente unidades de cada archivo':
+    if espectro:
+       st.write(f"Se clasificaran **{len(espectro)}** archivo(s)")
+       for file in espectro:
+           unidades = st.selectbox(f"'{file.name}' esta en angstroms?", V_angstroms)
+           es_angstrom = True if unidades == 'Si' else False      
+           try:
+               l, r = leer_espectros(file, es_angstrom)
+               interp = interpolación(l, r)
+               espectros.append({"Nombre": file.name, "onda": l, "reflectancia": r, "interpolado": interp} )
+           except ValueError as e:
+               st.warning("Error en archivo. Revise las unidades.")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Mis datos graficados", "Clasificación taxonomica (Euclidiana)", "PCA", "NCA", "KNN"])
 
