@@ -269,6 +269,11 @@ if estado== 'Clasificador taxonomico':
                   ax.legend()
                   ax.set_title("Espectros")
                   st.pyplot(fig)
+                  buffer_jpg = io.BytesIO()
+                  fig.savefig(buffer_jpg, format = "jpg", dpi = 300, bbox_inches = "tight")
+                  buffer_jpg.seek(0)
+                  nombre_actual = item["Nombre"].rsplit(".", 1)[0]
+                  st.download_button(label = "Descargar gráfica", data = buffer_jpg.getvalue(), file_name = f"{nombre_actual}_k{valork}.jpg", mime = "image/jpeg", key = f"Descarga_imagen_{nombre_actual}_k{valork}")
                   plt.close()
                  else:
                   st.warning("No hay datos validos para graficar")
